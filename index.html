@@ -12,6 +12,9 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
 
+	 <script src="lib/nouislider.js"></script>
+	 <link rel="stylesheet" href="lib/nouislider.css">
+
 	<style>
 		body, html {
 			padding: 0;
@@ -30,12 +33,47 @@
 			background-color: red;
 			border-radius: 50%;
 		}
+
+		main#options {
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: 300px;
+			height: 100vh;
+			background-color: white;
+			padding: 20px;
+			z-index: 999;
+		}
 	</style>
 
 	<title>Document</title>
 </head>
 <body>
+<style id="hours"></style>
+
+
 	<div id="map"></div>
+
+	<main id="options">
+		<h1>options</h1>
+
+		<h2>time of day (hour)</h2>
+		<div id="time-slider"></div>
+
+		<h2 style="margin-top: 2em;">involving what?</h2>
+		<input type="checkbox" id="involve-bike" name="involve-bike">
+		<label for="involve-bike">Bike</label><br>
+		<input type="checkbox" id="involve-car" name="involve-car">
+		<label for="involve-car">Car</label><br>
+		<input type="checkbox" id="involve-pedestrian" name="involve-pedestrian">
+		<label for="involve-pedestrian">Pedestrian</label><br>
+		<input type="checkbox" id="involve-motorcycle" name="involve-motorcycle">
+		<label for="involve-motorcycle">Motorcycle</label><br>
+		<input type="checkbox" id="involve-hgv" name="involve-hgv">
+		<label for="involve-hgv">HGV</label><br>
+		<input type="checkbox" id="involve-other" name="involve-other">
+		<label for="involve-other">Other</label><br>
+	</main>
 
 
 	<script src="parseCSV.js"></script>
@@ -67,9 +105,24 @@
 				}
 
 				try {
-					const marker = L.marker([thisRow.LatitudeWGS84, thisRow.LongitudeWGS84], {icon: getIcon(row)}).addTo(map);
+					const marker = L.marker([thisRow.LatitudeWGS84, thisRow.LongitudeWGS84], {icon: getIcon(thisRow)}).addTo(map).bindPopup(`
+						<h1>Accident</h1>
+						<p>Hour: ${thisRow.AccidentHour}</p>
+						<p>Day: ${thisRow.DayOfWeek}</p>
+						<p>Category: ${thisRow.AccidentCategory}</p>
+						<p>Type: ${thisRow.AccidentType}</p>
+						<p>Detail: ${thisRow.AccidentTypeDetail}</p>
+						<p>Lighting: ${thisRow.LightingCondition}</p>
+						<p>Involved Bike: ${thisRow.InvolvingBike}</p>
+						<p>Involved Car: ${thisRow.InvolvingCar}</p>
+						<p>Involved Pedestrian: ${thisRow.InvolvingPedestrian}</p>
+						<p>Involved Motorcycle: ${thisRow.InvolvingMotorcycle}</p>
+						<p>Involved HGV: ${thisRow.InvolvingHGV}</p>
+						<p>Involved Other: ${thisRow.InvolvingOther}</p>
+						<p>Road Condition: ${thisRow.RoadCondition}</p>
+					`);
 				} catch {
-					console.log("couldn't route");
+					console.log("couldn't map");
 				}
 			}
 		}
@@ -78,8 +131,12 @@
 
 
 		function getIcon(row) {
-			return L.divIcon({
-				className: `accident`,
+			let classList = [];
+
+			classList.push(`hr-${parseInt(row.AccidentHour)}`);
+
+			return L.divIcon({				
+				className: `accident ${classList.join(" ")}`,
 
 				iconSize: [iconSize, iconSize],
 				iconAnchor: [iconSize / 2, iconSize / 2],
@@ -89,6 +146,70 @@
 
 
 		loadData();
-	</script>
+
+
+		
+		function showOnlyAtHour(hour) {
+			const hr = parseInt(hour);
+
+			// what the fuck is this
+			document.getElementById("hours").innerHTML = `
+				.accident:not(.hr-${hr}) {
+					display: none;
+				}
+			`;
+		}
+
+
+		// test time of day animation
+		// let time = 0;
+		// function timeLoop() {
+		// 	console.log(time);
+
+		// 	if(time >= 24) time = 0;
+
+		// 	showOnlyAtHour(time);
+
+		// 	time++;
+
+		// 	window.setTimeout(timeLoop, 500);
+		// }
+
+		// timeLoop();
+
+
+		const slider = document.getElementById("time-slider");
+		slider.style.width = "100%";
+		// slider.style.height = "100px";
+
+		noUiSlider.create(slider, {
+			start: [9],
+			step: 1,
+			connect: true,
+			range: {
+				'min': 0,
+				'max': 23
+			},
+
+			//  tooltips: true,
+			// 	format: wNumb({
+			// 		decimals: 0
+			// })
+
+			direction: 'ltr',
+
+			pips: {
+				mode: 'steps',
+				stepped: true,
+				density: 23
+			}
+
+		});
+
+		slider.noUiSlider.on('update', function (values, handle) {
+			showOnlyAtHour(values[handle]);
+		});
+</script>
+
 </body>
 </html>
