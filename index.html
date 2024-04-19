@@ -12,13 +12,24 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
 
+	
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
 	 <script src="lib/nouislider.js"></script>
 	 <link rel="stylesheet" href="lib/nouislider.css">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 
 	<style>
 		body, html {
 			padding: 0;
 			margin: 0;
+			font-family: "Inter", sans-serif;
 		}
 
 		div#map {
@@ -27,6 +38,7 @@
 			left: 0;
 			width: 100vw;
 			height: 100vh;
+			z-index: 1;
 		}
 
 		.accident {
@@ -42,14 +54,58 @@
 			height: 100vh;
 			background-color: white;
 			padding: 20px;
-			z-index: 999;
+			z-index: 998;
+		}
+
+		input[type="checkbox"] {
+			position: fixed;
+			top: -100px;
+			left: -100px;
+		}
+
+		input[type="checkbox"] + label {
+			cursor: pointer;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			background-color: pink;
+		}
+
+		input[type="checkbox"] + label span {
+			font-size: 2em;
+		}
+
+		input[type="checkbox"]:checked + label {
+			background-color: lightgreen;
+		}
+
+		
+		#mobile-toggle a {
+			position: fixed;
+			top: 0;
+			right: 0;
+			background-color: white;
+			padding: 10px;
+			z-index: 999999;
+		}
+
+		.leaflet-popup-content {
+			/* for some reason leaflet sets their own stuff */
+			font-family: "Inter", sans-serif;
+		}
+
+		.leaflet-popup-content b {
+			display: inline-block;
 		}
 	</style>
 
 	<title>Document</title>
 </head>
 <body>
-<style id="hours"></style>
+<div id="mobile-toggle"><a href="javascript:toggleOptions()">Toggle Options</a></div>
+
+<style id="style-hours"></style>
+<style id="style-vehicles"></style>
 
 
 	<div id="map"></div>
@@ -57,27 +113,32 @@
 	<main id="options">
 		<h1>options</h1>
 
-		<h2>time of day (hour)</h2>
+		<h2>🌄 time of day (hour)</h2>
+		<p>-1 = all</p>
 		<div id="time-slider"></div>
 
 		<h2 style="margin-top: 2em;">involving what?</h2>
+		<div id="inputs-list">
 		<input type="checkbox" id="involve-bike" name="involve-bike">
-		<label for="involve-bike">Bike</label><br>
+		<label for="involve-bike"><span>🚲</span> Bike</label>
 		<input type="checkbox" id="involve-car" name="involve-car">
-		<label for="involve-car">Car</label><br>
+		<label for="involve-car"><span>🚗</span> Car</label>
 		<input type="checkbox" id="involve-pedestrian" name="involve-pedestrian">
-		<label for="involve-pedestrian">Pedestrian</label><br>
+		<label for="involve-pedestrian"><span>🚶🏻</span> Pedestrian</label>
 		<input type="checkbox" id="involve-motorcycle" name="involve-motorcycle">
-		<label for="involve-motorcycle">Motorcycle</label><br>
+		<label for="involve-motorcycle"><span>🏍️</span> Motorcycle</label>
 		<input type="checkbox" id="involve-hgv" name="involve-hgv">
-		<label for="involve-hgv">HGV</label><br>
+		<label for="involve-hgv"><span>🚚</span> HGV</label>
 		<input type="checkbox" id="involve-other" name="involve-other">
-		<label for="involve-other">Other</label><br>
+		<label for="involve-other"><span>🛸</span> Other</label>
+		</div>
 	</main>
 
 
 	<script src="parseCSV.js"></script>
-	<script>
+	<script src="number-to-details.js"></script>
+
+	<script> 
 
 		// centre is berlin TV tower
 		const map = L.map('map').setView([52.520834, 13.409429829], 13);
@@ -88,8 +149,46 @@
 			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 		}).addTo(map);
 
+		L.Routing.control({
+			waypoints: [
+				L.latLng(57.74, 11.94),
+				L.latLng(57.6792, 11.949)
+			]
+		}).addTo(map);
+
+		function createButton(label, container) {
+		var btn = L.DomUtil.create('button', '', container);
+		btn.setAttribute('type', 'button');
+		btn.innerHTML = label;
+		return btn;
+}
+
+		map.on('click', function(e) {
+			var container = L.DomUtil.create('div'),
+				startBtn = createButton('Start from this location', container),
+				destBtn = createButton('Go to this location', container);
+
+			L.popup()
+				.setContent(container)
+				.setLatLng(e.latlng)
+				.openOn(map);
+		});
+
+		L.DomEvent.on(startBtn, 'click', function() {
+        control.spliceWaypoints(0, 1, e.latlng);
+        map1.closePopup();
+    });
+
+	 L.DomEvent.on(destBtn, 'click', function() {
+        control.spliceWaypoints(control.getWaypoints().length - 1, 1, e.latlng);
+        map1.closePopup();
+    });
 
 		async function loadData() {
+			// const bikeLanes = await fetch("bike_lanes_Berlin.geojson");
+			// const bikeLanesData = await bikeLanes.json();
+			// const geojson = L.geoJSON(bikeLanesData).addTo(map);
+
 			const data = await fetch("accidents_Berlin_2021.csv");
 			const text = await data.text();
 			
@@ -105,21 +204,43 @@
 				}
 
 				try {
+					let involving = new Set();
+					if(thisRow.InvolvingBike == "1") involving.add("bike");
+					if(thisRow.InvolvingCar == "1") involving.add("car");
+					if(thisRow.InvolvingPedestrian == "1") involving.add("pedestrian");
+					if(thisRow.InvolvingMotorcycle == "1") involving.add("motorcycle");
+					if(thisRow.InvolvingHGV == "1") involving.add("hgv");
+					if(thisRow.InvolvingOther == "1") involving.add("other");
+
+					const emoji = {
+						"bike": "🚲",
+						"car": "🚗",
+						"pedestrian": "🚶🏻",
+						"motorcycle": "🏍️",
+						"hgv": "🚚",
+						"other": "🛸"
+					}
+
+					let involvingString = "";
+					for(const v of involving) {
+						involvingString += `${emoji[v]} + `;
+					}
+					involvingString = involvingString.slice(0, -3);
+
 					const marker = L.marker([thisRow.LatitudeWGS84, thisRow.LongitudeWGS84], {icon: getIcon(thisRow)}).addTo(map).bindPopup(`
-						<h1>Accident</h1>
-						<p>Hour: ${thisRow.AccidentHour}</p>
-						<p>Day: ${thisRow.DayOfWeek}</p>
-						<p>Category: ${thisRow.AccidentCategory}</p>
-						<p>Type: ${thisRow.AccidentType}</p>
-						<p>Detail: ${thisRow.AccidentTypeDetail}</p>
-						<p>Lighting: ${thisRow.LightingCondition}</p>
-						<p>Involved Bike: ${thisRow.InvolvingBike}</p>
-						<p>Involved Car: ${thisRow.InvolvingCar}</p>
-						<p>Involved Pedestrian: ${thisRow.InvolvingPedestrian}</p>
-						<p>Involved Motorcycle: ${thisRow.InvolvingMotorcycle}</p>
-						<p>Involved HGV: ${thisRow.InvolvingHGV}</p>
-						<p>Involved Other: ${thisRow.InvolvingOther}</p>
-						<p>Road Condition: ${thisRow.RoadCondition}</p>
+						<h1>${involvingString}</h1>
+
+						<p>${thisRow.AccidentHour}:00 &ndash; ${parseInt(thisRow.AccidentHour) + 1 >= 24 ? "0" : parseInt(thisRow.AccidentHour) + 1}:00, on a ${numberToDetails("DayOfWeek", thisRow.DayOfWeek)}</p>
+
+						<hr>
+
+						<p>
+							A <b>${numberToDetails("AccidentCategory", thisRow.AccidentCategory).toLowerCase()}</b>, 
+							<b>${numberToDetails("AccidentType", thisRow.AccidentType).toLowerCase()}</b>
+						</p>
+
+						<p>It was <b>${numberToDetails("AccidentTypeDetail", thisRow.AccidentTypeDetail).toLowerCase()}</b> that happened
+						<b>${numberToDetails("LightingCondition", thisRow.LightingCondition)}</b> when the road was <b>${numberToDetails("RoadCondition", thisRow.RoadCondition)}</b>.</p>
 					`);
 				} catch {
 					console.log("couldn't map");
@@ -134,9 +255,19 @@
 			let classList = [];
 
 			classList.push(`hr-${parseInt(row.AccidentHour)}`);
+			
+			if(row.InvolvingBike == "1") classList.push("involves-bike");
+			if(row.InvolvingCar == "1") classList.push("involves-car");
+			if(row.InvolvingPedestrian == "1") classList.push("involves-pedestrian");
+			if(row.InvolvingMotorcycle == "1") classList.push("involves-motorcycle");
+			if(row.InvolvingHGV == "1") classList.push("involves-hgv");
+			if(row.InvolvingOther == "1") classList.push("involves-other");
 
 			return L.divIcon({				
 				className: `accident ${classList.join(" ")}`,
+
+				// cursed but it works
+				html: `<span style="display: none;" data-lat="${row.LatitudeWGS84}" data-lon="${row.LongitudeWGS84}" data-severity="${row.AccidentCategory}"></span>`,
 
 				iconSize: [iconSize, iconSize],
 				iconAnchor: [iconSize / 2, iconSize / 2],
@@ -149,17 +280,68 @@
 
 
 		
+		function showAllHours() {
+			document.getElementById("style-hours").innerHTML = ``;
+		}
+
 		function showOnlyAtHour(hour) {
 			const hr = parseInt(hour);
 
+			if(hr == -1) {
+				showAllHours();
+				return;
+			}
+
 			// what the fuck is this
-			document.getElementById("hours").innerHTML = `
+			document.getElementById("style-hours").innerHTML = `
 				.accident:not(.hr-${hr}) {
 					display: none;
 				}
 			`;
 		}
 
+		function showAllVehicles() {
+			document.getElementById("style-vehicles").innerHTML = ``;
+		}
+
+		const vehicles = new Set(["bike", "car", "pedestrian", "motorcycle", "hgv", "other"]);
+		function showVehicles() {
+
+			let toHide = new Set(Array.from(vehicles));
+
+			for(const v of vehicles) {
+				console.log(`checking ${v}`);
+				if(!document.getElementById(`involve-${v}`).checked) {
+					toHide.delete(v);
+					console.log(v, toHide);
+				}
+
+			}
+
+			let nots = "";
+			for(const v of toHide) {
+				nots += `:not(.involves-${v})`;
+			}
+
+			console.log(toHide);
+
+			document.getElementById("style-vehicles").innerHTML = `
+				.accident${nots} {
+					display: none;
+				}
+			`
+		}
+
+		for(const v of vehicles) {
+			try {
+				document.getElementById(`involve-${v}`).onchange = showVehicles;
+				document.getElementById(`involve-${v}`).checked = true;
+			} catch {
+				console.log(`missing checkbox to set event listener? for ${v}`);
+			}
+		}
+
+		
 
 		// test time of day animation
 		// let time = 0;
@@ -183,11 +365,11 @@
 		// slider.style.height = "100px";
 
 		noUiSlider.create(slider, {
-			start: [9],
+			start: [-1],
 			step: 1,
 			connect: true,
 			range: {
-				'min': 0,
+				'min': -1,
 				'max': 23
 			},
 
@@ -200,15 +382,60 @@
 
 			pips: {
 				mode: 'steps',
-				stepped: true,
-				density: 23
+				stepped: false,
+				density: 12
 			}
 
 		});
 
+		
 		slider.noUiSlider.on('update', function (values, handle) {
 			showOnlyAtHour(values[handle]);
 		});
+
+		
+		slider.noUiSlider.on('load', function (values, handle) {
+			showOnlyAtHour(values[handle]);
+		});
+
+		function toggleOptions() {
+			if(document.getElementById("options").style.display == "none") {
+				document.getElementById("options").style.display = "block";
+			} else {
+				document.getElementById("options").style.display = "none";
+			}
+		}
+
+		function getCurrentLocation() {
+			navigator.geolocation.getCurrentPosition((position) => {
+				map.setView([position.coords.latitude, position.coords.longitude], 15);
+
+				L.marker([position.coords.latitude, position.coords.longitude]).addTo(map).bindPopup("You are here").openPopup();
+
+				// find accidents within 1km
+				// this is really jank but it works
+				let counts = {"1":0, "2":0, "3":0};
+				const accidents = document.querySelectorAll(".accident");
+				for(const accident of accidents) {
+					const lat = parseFloat(accident.querySelector("span").dataset.lat);
+					const lon = parseFloat(accident.querySelector("span").dataset.lon);
+					const severity = accident.querySelector("span").dataset.severity;
+
+					const R = 6371; // Radius of the Earth in kilometers
+
+					const distance = 2 * R * Math.asin(Math.sqrt(Math.pow(Math.sin((lat - position.coords.latitude) * Math.PI / 180 / 2), 2) + Math.cos(lat * Math.PI / 180) * Math.cos(position.coords.latitude * Math.PI / 180) * Math.pow(Math.sin((lon - position.coords.longitude) * Math.PI / 180 / 2), 2)));
+
+					if (distance < 1) {
+						accident.style.backgroundColor = "blue";
+						counts[severity]++;
+					}
+				}
+
+				alert(`Within 1km of your current location, there were ${counts[1] + counts[2] + counts[3]} accidents. ${counts["3"]} had only minor injuries, ${counts["2"]} with serious injuries, and ${counts["1"]} that proved fatal.`);
+			});
+		}
+
+		window.onload = getCurrentLocation;
 </script>
 
 </body>
