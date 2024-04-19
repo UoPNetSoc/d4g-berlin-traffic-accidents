@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+	 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+	<style>
+		body, html {
+			padding: 0;
+			margin: 0;
+		}
+
+		div#map {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		.accident {
+			background-color: red;
+			border-radius: 50%;
+		}
+	</style>
+
+	<title>Document</title>
+</head>
+<body>
+	<div id="map"></div>
+
+
+	<script src="parseCSV.js"></script>
+	<script>
+
+		// centre is berlin TV tower
+		const map = L.map('map').setView([52.520834, 13.409429829], 13);
+
+		// openstreatmap is temp
+		L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		}).addTo(map);
+
+
+		async function loadData() {
+			const data = await fetch("accidents_Berlin_2021.csv");
+			const text = await data.text();
+			
+			const header = ['ObjectID','State','District','LOR_ab_2021','AccidentYear','AccidentMonth','AccidentHour','DayOfWeek','AccidentCategory','AccidentType','AccidentTypeDetail','LightingCondition','InvolvingBike','InvolvingCar','InvolvingPedestrian','InvolvingMotorcycle','InvolvingHGV','InvolvingOther','RoadCondition','GraphicCoord1','GraphicCoord2','LongitudeWGS84','LatitudeWGS84'];
+
+			const rows = parseCSV(text);
+
+			for(const row of rows) {
+				let thisRow = {};
+				
+				for(const cell in row) {
+					thisRow[header[cell]] = row[cell];
+				}
+
+				try {
+					const marker = L.marker([thisRow.LatitudeWGS84, thisRow.LongitudeWGS84], {icon: getIcon(row)}).addTo(map);
+				} catch {
+					console.log("couldn't route");
+				}
+			}
+		}
+
+		const iconSize = 10;
+
+
+		function getIcon(row) {
+			return L.divIcon({
+				className: `accident`,
+
+				iconSize: [iconSize, iconSize],
+				iconAnchor: [iconSize / 2, iconSize / 2],
+				popupAnchor: [0, 0],
+			});
+		}
+
+
+		loadData();
+	</script>
+</body>
+</html>
