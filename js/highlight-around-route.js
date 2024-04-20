@@ -1,4 +1,6 @@
 async function highlightAroundRoute(e) {
+	lastWaypoints = e.route.inputWaypoints;
+
 	let route = e.route;
 
 	

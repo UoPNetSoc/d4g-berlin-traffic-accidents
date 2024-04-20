@@ -78,10 +78,26 @@ async function loadData() {
 		}
 	}
 
-	routeControl.setWaypoints([
-		start, end
-	]);
-}
+
+	if (lastWaypoints) {
+		routeControl.setWaypoints(lastWaypoints);
+	} else {
+		// Define start and end points
+		const start = L.Routing.waypoint([52.5224, 13.4095], 'Start', {
+			waypointIcon: greenIcon // Use green icon for start marker
+		});
+
+		const end = L.Routing.waypoint([52.5128, 13.3893], 'End', {
+			waypointIcon: redIcon // Use red icon for end marker
+		});
+	
+		routeControl.setWaypoints([
+			start, end
+		]);
+	}
+	}
+
+	
 
 
 loadData();

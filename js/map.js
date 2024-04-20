@@ -1,3 +1,5 @@
+let lastWaypoints;
+
 // centre is berlin TV tower
 const map = L.map('map').setView([52.520834, 13.409429829], 13);
 let markers = [];
@@ -34,7 +36,10 @@ let routeControl = L.Routing.control({
 	routeWhileDragging: false,
 	lineOptions: {
 		styles: [{ color: 'blue', opacity: 1, weight: 5 }]
-	}
+	},
+	router: new L.Routing.osrmv1({
+		serviceUrl: "https://routing.openstreetmap.de/routed-foot/route/v1/"
+	})
 })
 .on('routingstart', function(){
 	routingStatus("start");
@@ -48,14 +53,6 @@ let routeControl = L.Routing.control({
 .on('routeselected', highlightAroundRoute)
 .addTo(map);
 
-// Define start and end points
-const start = L.Routing.waypoint([52.5224, 13.4095], 'Start', {
-	waypointIcon: greenIcon // Use green icon for start marker
-});
-
-const end = L.Routing.waypoint([52.5128, 13.3893], 'End', {
-	waypointIcon: redIcon // Use red icon for end marker
-});
 
 showOnRoute();
 
