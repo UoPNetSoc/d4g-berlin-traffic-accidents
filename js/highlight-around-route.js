@@ -1,4 +1,8 @@
 async function highlightAroundRoute(e) {
+	routingStatus("done");
+
+	document.getElementById("status").innerHTML = "routing done - loading accidents near";
+
 	lastWaypoints = e.route.inputWaypoints;
 
 	let route = e.route;
@@ -83,6 +87,8 @@ async function highlightAroundRoute(e) {
 	}
 
 	console.log(stats);
+
+	document.getElementById("status").innerHTML = "routing done - showing accidents near";
 
 	updateFilterStats();
 	generateCharts();

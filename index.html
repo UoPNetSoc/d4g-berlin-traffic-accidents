@@ -38,22 +38,26 @@
 <style id="style-vehicles"></style>
 <style id="style-severity"></style>
 <style id="style-near-route"></style>
+<style id="style-lighting"></style>
+<style id="style-weather"></style>
 
 	<aside id="top-bar">
 		<a href="javascript:showOnRoute()" class="active" id="show-on-route-button">📌 Show Accidents on a Route</a>
 		<a href="javascript:showAll()" id="show-all-button">🗺️ Show all Accidents</a>
 	</aside>
 
+	<p id="status">Loading, please be patient...</p>
+
 	<div id="map"></div>
 
 	<main id="options">
 		<p><span id="filter-stats">0/0</span> accidents on the route match these filters</p>
 
-		<h2>🌄 time of day (hour)</h2>
+		<h2>Hour of Day</h2>
 		<p>-1 = all</p>
 		<div id="time-slider"></div>
 
-		<h2 style="margin-top: 2em;">vehicles</h2>
+		<h2 style="margin-top: 2em;">Method</h2>
 		<div class="checkbox-list">
 			<input type="checkbox" id="involve-bike" name="involve-bike">
 			<label for="involve-bike"><span>🚲</span> Bike</label>
@@ -69,7 +73,7 @@
 			<label for="involve-other"><span>🛸</span> Other</label>
 		</div>
 
-		<h2>severity</h2>
+		<h2>Severity</h2>
 		<div class="checkbox-list three">
 			<input type="checkbox" id="severity-fatal" name="severity-fatal">
 			<label for="severity-fatal"><span>🟥</span> Fatal</label>
@@ -78,10 +82,34 @@
 			<input type="checkbox" id="severity-minor" name="severity-minor">
 			<label for="severity-minor"><span>🟩</span> Minor</label>
 		</div>
+
+		<h2>Light Conditions</h2>
+		<div class="checkbox-list three">
+			<input type="checkbox" id="lighting-day" name="lighting-day">
+			<label for="lighting-day"><span>🌞</span> Daylight</label>
+			
+
+			<input type="checkbox" id="lighting-dusk" name="lighting-dusk">
+			<label for="lighting-dusk"><span>🌇</span> Dusk</label>
+
+			<input type="checkbox" id="lighting-dark" name="lighting-dark">
+			<label for="lighting-dark"><span>🌚</span> Dark</label>
+		</div>
+
+		<h2>Road Conditions</h2>
+		<div class="checkbox-list three">
+			<input type="checkbox" id="weather-dry" name="weather-dry">
+			<label for="weather-dry"><span>🌞</span> Dry</label>
+			<input type="checkbox" id="weather-wet" name="weather-wet">
+			<label for="weather-wet"><span>🌧️</span> Wet</label>
+			<input type="checkbox" id="weather-snowy" name="weather-snowy">
+			<label for="weather-snowy"><span>❄️</span> Ice</label>
+		</div>
+
 	</main>
 
-	<aside id="bottom-bar"> <p id="status">Loading, please be patient...</p></div>
-		
+	<aside id="bottom-bar"></div>
+
 	<div id="graphs">
 		<div><canvas id="chart-severity" class="chart"></canvas></div>
 		<div><canvas id="chart-involving" class="chart"></canvas></div>

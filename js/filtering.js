@@ -1,10 +1,14 @@
 
 function showAllHours() {
+	document.getElementById("status").innerHTML = `Showing all hours`;
+
 	document.getElementById("style-hours").innerHTML = ``;
 	updateFilterStats();
 }
 
 function showOnlyAtHour(hour) {
+	document.getElementById("status").innerHTML = `Showing only hour ${hour}`;
+
 	const hr = parseInt(hour);
 
 	if (hr == -1) {
@@ -22,12 +26,15 @@ function showOnlyAtHour(hour) {
 }
 
 function showAllVehicles() {
+	document.getElementById("status").innerHTML = `Showing all vehicles`;
+
 	document.getElementById("style-vehicles").innerHTML = ``;
 	updateFilterStats();
 }
 
 const vehicles = new Set(["bike", "car", "pedestrian", "motorcycle", "hgv", "other"]);
 function showVehicles() {
+	document.getElementById("status").innerHTML = `Showing only some vehicles`;
 
 	let toHide = new Set(Array.from(vehicles));
 
@@ -68,6 +75,7 @@ for (const v of vehicles) {
 
 const severities = new Set(["fatal", "serious", "minor"]);
 function showSeverities() {
+	document.getElementById("status").innerHTML = `Showing some severities`;
 
 	let toHide = new Set(Array.from(severities));
 
@@ -104,6 +112,90 @@ for (const s of severities) {
 		console.log(`missing checkbox to set event listener? for ${s}`);
 	}
 }
+
+const lighting = new Set(["dark", "dusk", "day"]);
+
+function showLighting() {
+	document.getElementById("status").innerHTML = `Showing some lighting`;
+	
+	let toHide = new Set(Array.from(lighting));
+
+	for (const l of lighting) {
+		console.log(`checking ${l}`);
+		if (!document.getElementById(`lighting-${l}`).checked) {
+			toHide.delete(l);
+			console.log(l, toHide);
+		}
+
+	}
+
+	let nots = "";
+	for (const l of toHide) {
+		nots += `:not(.${l})`;
+	}
+
+	console.log(toHide);
+
+	document.getElementById("style-lighting").innerHTML = `
+				.accident${nots} {
+					display: none;
+				}
+			`
+
+	updateFilterStats();
+}
+
+for (const l of lighting) {
+	try {
+		document.getElementById(`lighting-${l}`).onchange = showLighting;
+		document.getElementById(`lighting-${l}`).checked = true;
+	} catch {
+		console.log(`missing checkbox to set event listener? for ${l}`);
+	}
+}
+
+const roadConditions = new Set(["dry", "wet", "snowy"]);
+
+function showRoadConditions() {
+	document.getElementById("status").innerHTML = `Showing some road conditions`;
+
+	let toHide = new Set(Array.from(roadConditions));
+
+	for (const r of roadConditions) {
+		console.log(`checking ${r}`);
+		if (!document.getElementById(`weather-${r}`).checked) {
+			toHide.delete(r);
+			console.log(r, toHide);
+		}
+
+	}
+
+	let nots = "";
+	for (const r of toHide) {
+		nots += `:not(.${r})`;
+	}
+
+	console.log(toHide);
+
+	document.getElementById("style-weather").innerHTML = `
+				.accident${nots} {
+					display: none;
+				}
+			`
+
+	updateFilterStats();
+}
+
+for (const r of roadConditions) {
+	try {
+		document.getElementById(`weather-${r}`).onchange = showRoadConditions;
+		document.getElementById(`weather-${r}`).checked = true;
+	} catch {
+		console.log(`missing checkbox to set event listener? for ${r}`);
+	}
+}
+
+
 
 // test time of day animation
 // let time = 0;

@@ -1,12 +1,17 @@
 // let bikeLanesG;
 
-async function loadData() {
-	const bikeLanes = await fetch("../data/bike_lanes_Berlin.geojson");
-	const bikeLanesData = await bikeLanes.json();
-	bikeLanesG = L.geoJSON(bikeLanesData, { className: "bike-lane" });
-	bikeLanesG.addTo(map);
+if (!window.location.hash) window.location.hash = "2021";
+window.onhashchange = () => { window.location.reload(); }
 
-	const data = await fetch("../data/accidents_Berlin_2021.csv");
+async function loadData() {
+	document.getElementById("status").innerHTML = "Loading data...";
+
+	// const bikeLanes = await fetch("../data/bike_lanes_Berlin.geojson");
+	// const bikeLanesData = await bikeLanes.json();
+	// bikeLanesG = L.geoJSON(bikeLanesData, { className: "bike-lane" });
+	// bikeLanesG.addTo(map);
+
+	const data = await fetch(`../data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`);
 	const text = await data.text();
 
 	const header = ['ObjectID', 'State', 'District', 'LOR_ab_2021', 'AccidentYear', 'AccidentMonth', 'AccidentHour', 'DayOfWeek', 'AccidentCategory', 'AccidentType', 'AccidentTypeDetail', 'LightingCondition', 'InvolvingBike', 'InvolvingCar', 'InvolvingPedestrian', 'InvolvingMotorcycle', 'InvolvingHGV', 'InvolvingOther', 'RoadCondition', 'GraphicCoord1', 'GraphicCoord2', 'LongitudeWGS84', 'LatitudeWGS84'];
@@ -21,6 +26,8 @@ async function loadData() {
 		for (const cell in row) {
 			thisRow[header[cell]] = row[cell];
 		}
+
+		console.log(row, thisRow);
 
 		let involving = new Set();
 		if (thisRow.InvolvingBike == "1") involving.add("bike");
@@ -69,6 +76,7 @@ async function loadData() {
 
 		
 		document.getElementById("status").innerHTML = "Mapping data...";
+		let i = 0;
 		for(const m of markers) {
 			try {
 				m.addTo(map);
@@ -80,8 +88,11 @@ async function loadData() {
 
 
 	if (lastWaypoints) {
+		document.getElementById("status").innerHTML = `Using previous waypoints`;
 		routeControl.setWaypoints(lastWaypoints);
 	} else {
+		document.getElementById("status").innerHTML = `Setting waypoints`;
+
 		// Define start and end points
 		const start = L.Routing.waypoint([52.5224, 13.4095], 'Start', {
 			waypointIcon: greenIcon // Use green icon for start marker

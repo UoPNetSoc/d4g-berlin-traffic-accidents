@@ -46,7 +46,7 @@ function createCharts() {
 	lightingChart = new Chart(lightingChartCtx, {
 		type: 'bar',
 		data: {
-			labels: ['Day', 'Twilight', 'Dark'],
+			labels: ['Day', 'Dusk', 'Dark'],
 			datasets: [{
 				label: 'Number of Accidents by Lighting Conditions',
 				data: [0, 0, 0],
@@ -66,7 +66,7 @@ function createCharts() {
 	conditionsChart = new Chart(conditionsChartCtx, {
 		type: 'bar',
 		data: {
-			labels: ['Dry', 'Wet', 'Snowy'],
+			labels: ['Dry', 'Wet', 'Icy'],
 			datasets: [{
 				label: 'Number of Accidents by Weather Conditions',
 				data: [0, 0, 0],
@@ -157,7 +157,7 @@ function generateCharts() {
 
 	const dayElements = document.querySelectorAll('.day');
 	let dayCount = 0;
-	const twilightElements = document.querySelectorAll('.twilight');
+	const twilightElements = document.querySelectorAll('.dusk');
 	let twilightCount = 0;
 	const darkElements = document.querySelectorAll('.dark');
 	let darkCount = 0;

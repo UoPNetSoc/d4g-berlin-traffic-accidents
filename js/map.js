@@ -32,6 +32,8 @@ map.on('zoomend', function () {
 	console.log(map.getZoom());
 });
 
+
+routingStatus("wait");
 let routeControl = L.Routing.control({
 	routeWhileDragging: false,
 	lineOptions: {
@@ -42,13 +44,10 @@ let routeControl = L.Routing.control({
 	})
 })
 .on('routingstart', function(){
-	routingStatus("start");
+	routingStatus("starting");
 })
 .on('routingerror', function(){
 	routingStatus("error");
-})
-.on('routesfound', function(){
-	routingStatus("found");
 })
 .on('routeselected', highlightAroundRoute)
 .addTo(map);
@@ -79,7 +78,7 @@ function getIcon(row) {
 	if (row.AccidentCategory == "3") classList.push("severity-minor");
 
 	if (row.LightingCondition == "2") classList.push("dark");
-	if (row.LightingCondition == "1") classList.push("twilight");
+	if (row.LightingCondition == "1") classList.push("dusk");
 	if (row.LightingCondition == "0") classList.push("day");
 
 	if (row.RoadCondition == "0") classList.push("dry");
@@ -106,16 +105,20 @@ function getIcon(row) {
 function routingStatus(status) {
 	document.getElementById("status").innerHTML = `routing ${status}...`;
 
-	if(status == "start" || status == "error") {
-		document.getElementById("options").style.opacity = 0.5;
+	if(status === "starting") { document.getElementById("status").innerHTML = `calculating route...`; }
+
+	if(status == "starting" || status == "error" || status == "wait") {
+		document.getElementById("options").style["background-color"] = "#100a";
 		document.getElementById("options").style["pointer-events"] = "none";
 	} else {
-		document.getElementById("options").style.opacity = 1;
+		document.getElementById("options").style["background-color"] = "#fffa";
 		document.getElementById("options").style.removeProperty("pointer-events");
 	}
 }
 
 function showAll() {
+	document.getElementById("status").innerHTML = `switching to view of all accidents<br>this might take a second...`;
+
 	// remove the routing engine
 	map.removeControl(routeControl);
 
@@ -128,6 +131,8 @@ function showAll() {
 }
 
 function showOnRoute() {
+	document.getElementById("status").innerHTML = `switching to on-route view`;
+
 	document.getElementById("style-near-route").innerHTML = `
 		.accident:not(.near-route) {
 		display: none;
