@@ -1,6 +1,7 @@
 
 function showAllHours() {
 	document.getElementById("style-hours").innerHTML = ``;
+	updateFilterStats();
 }
 
 function showOnlyAtHour(hour) {
@@ -17,10 +18,12 @@ function showOnlyAtHour(hour) {
 					display: none;
 				}
 			`;
+	updateFilterStats();
 }
 
 function showAllVehicles() {
 	document.getElementById("style-vehicles").innerHTML = ``;
+	updateFilterStats();
 }
 
 const vehicles = new Set(["bike", "car", "pedestrian", "motorcycle", "hgv", "other"]);
@@ -49,6 +52,8 @@ function showVehicles() {
 					display: none;
 				}
 			`
+
+	updateFilterStats();
 }
 
 for (const v of vehicles) {
@@ -123,4 +128,19 @@ function toggleOptions() {
 	} else {
 		document.getElementById("options").style.display = "none";
 	}
+}
+
+function updateFilterStats() {
+	const totalNearRoute = document.querySelectorAll(".near-route").length;
+	let totalOnScreen = 0;
+	for(const m of markers) {
+		if(!isHidden(m._icon)) totalOnScreen++;
+	}
+
+	document.getElementById("filter-stats").innerHTML = `${totalOnScreen}/${totalNearRoute}`;
+}
+
+function isHidden(el) {
+	var style = window.getComputedStyle(el);
+	return (style.display === 'none')
 }

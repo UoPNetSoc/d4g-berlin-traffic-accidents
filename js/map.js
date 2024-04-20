@@ -12,11 +12,23 @@ const redIcon = L.icon({
 	iconSize: [25, 41]
 });
 
-// openstreatmap is temp
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	maxZoom: 19,
-	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+
+const southWest = L.latLng(52.6709, 13.04128),
+	northEast = L.latLng(52.3432, 13.7634),
+	bounds = L.latLngBounds(southWest, northEast);
+
+const accessToken = 'LLRKmYSkrp1Az5HNzMzgM4PuUzfxYw1sBSUBwOKHaihIKTU4UwJM4Fh3uMzVvIFU'; // for jawg.io
+L.tileLayer(`https://tile.jawg.io/jawg-streets/{z}/{x}/{y}{r}.png?access-token=${accessToken}`, {
+	bounds: bounds,
+	maxZoom: 16,
+	minZoom: 12,
+	attribution: '<a href="https://jawg.io?utm_medium=map&utm_source=attribution" title="Tiles Courtesy of Jawg Maps" target="_blank" class="jawg-attrib" >&copy; <b>Jawg</b>Maps</a> | <a href="https://www.openstreetmap.org/copyright" title="OpenStreetMap is open data licensed under ODbL" target="_blank" class="osm-attrib">&copy; OSM contributors</a>'
 }).addTo(map);
+
+// log zoom level on change
+map.on('zoomend', function () {
+	console.log(map.getZoom());
+});
 
 let routeControl = L.Routing.control({
 	routeWhileDragging: false,
