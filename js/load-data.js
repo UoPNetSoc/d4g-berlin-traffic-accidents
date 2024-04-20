@@ -13,7 +13,9 @@ async function loadData() {
 
 	const rows = parseCSV(text);
 
+	document.getElementById("stats").innerHTML = "Generating markers...";
 	for (const row of rows) {
+
 		let thisRow = {};
 
 		for (const cell in row) {
@@ -66,6 +68,7 @@ async function loadData() {
 		}
 
 		
+		document.getElementById("stats").innerHTML = "Mapping data...";
 		for(const m of markers) {
 			try {
 				m.addTo(map);

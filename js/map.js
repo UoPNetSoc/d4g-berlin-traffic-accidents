@@ -35,7 +35,19 @@ let routeControl = L.Routing.control({
 	lineOptions: {
 		styles: [{ color: 'blue', opacity: 1, weight: 5 }]
 	}
-}).on('routeselected', highlightAroundRoute).addTo(map);
+})
+.on('routingstart', function(){
+	document.getElementById("stats").innerHTML = "Calculating a route...";
+})
+.on('routingerror', function(){
+	document.getElementById("stats").innerHTML = "Couldn't calculate a route.";
+})
+.on('routesfound', function(){
+	document.getElementById("stats").innerHTML = "Route found!";
+})
+.on('routeselected', highlightAroundRoute)
+
+.addTo(map);
 
 // Define start and end points
 const start = L.Routing.waypoint([52.5224, 13.4095], 'Start', {
@@ -67,6 +79,10 @@ function getIcon(row) {
 	if (row.InvolvingMotorcycle == "1") classList.push("involves-motorcycle");
 	if (row.InvolvingHGV == "1") classList.push("involves-hgv");
 	if (row.InvolvingOther == "1") classList.push("involves-other");
+
+
+	// todo: these need to have prefixes
+	// we also need to include the category and type (turning, stationary, etc)
 
 	if (row.AccidentCategory == "1") classList.push("fatal");
 	if (row.AccidentCategory == "2") classList.push("serious");
