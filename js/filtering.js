@@ -176,6 +176,8 @@ function updateFilterStats() {
 	}
 
 	document.getElementById("filter-stats").innerHTML = `${totalOnScreen}/${totalNearRoute}`;
+
+	generateCharts();
 }
 
 function isHidden(el) {

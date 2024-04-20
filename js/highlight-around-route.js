@@ -82,13 +82,16 @@ async function highlightAroundRoute(e) {
 
 	console.log(stats);
 
-	document.getElementById("stats").innerHTML = `
-		<h1>${stats.total} accidents near route</h1>
-		<p>${stats.fatal} fatal, ${stats.serious} serious, ${stats.minor} minor &bull;
-		${stats.car} involving a car, ${stats.pedestrian} pedestrian, ${stats.bike} bike, ${stats.motorcycle} motorcycle, ${stats.hgv} hgv, ${stats.other} other &bull;
-		${stats.dark} in the dark, ${stats.twilight} at twilight, ${stats.day} during the day &bull;
-		${stats.dry} dry, ${stats.wet} wet, ${stats.snowy} snowy &bull; have a nice trip!</p>
-	`;
+	updateFilterStats();
+	generateCharts();
+
+	// document.getElementById("stats").innerHTML = `
+	// 	<h1>${stats.total} accidents near route</h1>
+	// 	<p>${stats.fatal} fatal, ${stats.serious} serious, ${stats.minor} minor &bull;
+	// 	${stats.car} involving a car, ${stats.pedestrian} pedestrian, ${stats.bike} bike, ${stats.motorcycle} motorcycle, ${stats.hgv} hgv, ${stats.other} other &bull;
+	// 	${stats.dark} in the dark, ${stats.twilight} at twilight, ${stats.day} during the day &bull;
+	// 	${stats.dry} dry, ${stats.wet} wet, ${stats.snowy} snowy &bull; have a nice trip!</p>
+	// `;
 }
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {

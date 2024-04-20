@@ -25,129 +25,11 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 
-	<style>
-		body, html {
-			padding: 0;
-			margin: 0;
-			font-family: "Inter", sans-serif;
-		}
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-		div#map {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 90vh;
-			z-index: 1;
-		}
+	<link rel="stylesheet" href="style.css">
 
-		aside#bottom-bar {
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			width: 100vw;
-			background-color: #fff;
-
-			padding: 1vh 5vw;
-		}
-
-		.accident {
-			background-color: red;
-			border-radius: 50%;
-		}
-
-		main#options {
-			position: fixed;
-			top: 0;
-			right: 0;
-			width: 300px;
-			height: 100vh;
-			background-color: white;
-			padding: 20px;
-			z-index: 998;
-			overflow-y: scroll;
-		}
-
-		.checkbox-list {
-			display: grid;
-    		grid-template-columns: 1fr 1fr;
-		}
-
-		input[type="checkbox"] {
-			position: fixed;
-			top: -100px;
-			left: -100px;
-		}
-
-		input[type="checkbox"] + label {
-			cursor: pointer;
-			text-align: center;
-			display: flex;
-			flex-direction: column;
-			background-color: pink;
-		}
-
-		input[type="checkbox"] + label span {
-			font-size: 2em;
-		}
-
-		input[type="checkbox"]:checked + label {
-			background-color: lightgreen;
-		}
-
-		
-		#mobile-toggle a {
-			position: fixed;
-			top: 0;
-			right: 0;
-			background-color: white;
-			padding: 10px;
-			z-index: 999999;
-		}
-
-		.leaflet-popup-content {
-			/* for some reason leaflet sets their own stuff */
-			font-family: "Inter", sans-serif;
-		}
-
-		.leaflet-popup-content b {
-			display: inline-block;
-		}
-
-		.accident:not(.near-route) {
-			display: none;
-		}
-
-		.bike-lane:not(.near-route) {
-			display: none;
-		}
-
-		.leaflet-tile-pane {
-			opacity: 0.7;
-		}
-		
-		.accident {
-			border: 2px solid #000;
-		}
-
-		.accident[data-severity="1"] {
-			background-color: #f00;
-		}
-
-		.accident:has(> span[data-severity="2"]) {
-			background-color: #ff0;
-		}
-
-		.accident:has(> span[data-severity="3"]) {
-			background-color: #0f0;
-		}
-
-		.leaflet-routing-container {
-			display: none;
-		}
-	</style>
-
-	<title>Document</title>
+	<title>D4G Berlin Traffic Accidents</title>
 </head>
 <body>
 <div id="mobile-toggle"><a href="javascript:toggleOptions()">Toggle Options</a></div>
@@ -155,7 +37,12 @@
 <style id="style-hours"></style>
 <style id="style-vehicles"></style>
 <style id="style-severity"></style>
+<style id="style-near-route"></style>
 
+	<aside id="top-bar">
+		<a href="javascript:showOnRoute()" class="active" id="show-on-route-button">📌 Show Accidents on a Route</a>
+		<a href="javascript:showAll()" id="show-all-button">🗺️ Show all Accidents</a>
+	</aside>
 
 	<div id="map"></div>
 
@@ -183,7 +70,7 @@
 		</div>
 
 		<h2>severity</h2>
-		<div class="checkbox-list">
+		<div class="checkbox-list three">
 			<input type="checkbox" id="severity-fatal" name="severity-fatal">
 			<label for="severity-fatal"><span>🟥</span> Fatal</label>
 			<input type="checkbox" id="severity-serious" name="severity-serious">
@@ -193,13 +80,24 @@
 		</div>
 	</main>
 
-	<aside id="bottom-bar"> <div id="stats"><h1>Loading, please be patient...</h1></div></aside>
+	<aside id="bottom-bar"> <p id="status">Loading, please be patient...</p></div>
+		
+	<div id="graphs">
+		<div><canvas id="chart-severity" class="chart"></canvas></div>
+		<div><canvas id="chart-involving" class="chart"></canvas></div>
+		<div><canvas id="chart-lighting" class="chart"></canvas></div>
+		<div><canvas id="chart-weather" class="chart"></canvas></div>
+
+	</div>
+		
+	</aside>
 
 	<script src="js/parseCSV.js"></script>
 	<script src="js/number-to-details.js"></script>
+	<script src="js/charts.js"></script>
+	<script src="js/load-data.js"></script>
 	<script src="js/highlight-around-route.js"></script>
 	<script src="js/map.js"></script>
-	<script src="js/load-data.js"></script>
 	<script src="js/filtering.js"></script>
 </script>
 

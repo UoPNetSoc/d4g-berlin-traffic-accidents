@@ -37,16 +37,15 @@ let routeControl = L.Routing.control({
 	}
 })
 .on('routingstart', function(){
-	document.getElementById("stats").innerHTML = "Calculating a route...";
+	routingStatus("start");
 })
 .on('routingerror', function(){
-	document.getElementById("stats").innerHTML = "Couldn't calculate a route.";
+	routingStatus("error");
 })
 .on('routesfound', function(){
-	document.getElementById("stats").innerHTML = "Route found!";
+	routingStatus("found");
 })
 .on('routeselected', highlightAroundRoute)
-
 .addTo(map);
 
 // Define start and end points
@@ -58,13 +57,7 @@ const end = L.Routing.waypoint([52.5128, 13.3893], 'End', {
 	waypointIcon: redIcon // Use red icon for end marker
 });
 
-
-function createButton(label, container) {
-	var btn = L.DomUtil.create('button', '', container);
-	btn.setAttribute('type', 'button');
-	btn.innerHTML = label;
-	return btn;
-}
+showOnRoute();
 
 
 function getIcon(row) {
@@ -109,6 +102,48 @@ function getIcon(row) {
 
 		iconSize: [iconSize, iconSize],
 		iconAnchor: [iconSize / 2, iconSize / 2],
-		popupAnchor: [0, 0],
+		popupAnchor: [0, 0]
 	});
+}
+
+function routingStatus(status) {
+	document.getElementById("status").innerHTML = `routing ${status}...`;
+
+	if(status == "start" || status == "error") {
+		document.getElementById("options").style.opacity = 0.5;
+		document.getElementById("options").style["pointer-events"] = "none";
+	} else {
+		document.getElementById("options").style.opacity = 1;
+		document.getElementById("options").style.removeProperty("pointer-events");
+	}
+}
+
+function showAll() {
+	// remove the routing engine
+	map.removeControl(routeControl);
+
+	// remove the CSS that only shows markers near the route
+	document.getElementById("style-near-route").innerHTML = ``;
+
+	document.getElementById("show-all-button").classList.add("active");
+	document.getElementById("show-on-route-button").classList.remove("active");
+	generateCharts();
+}
+
+function showOnRoute() {
+	document.getElementById("style-near-route").innerHTML = `
+		.accident:not(.near-route) {
+		display: none;
+		}
+
+		.bike-lane:not(.near-route) {
+		display: none;
+		}
+	`;
+
+	routeControl.addTo(map);
+
+	document.getElementById("show-all-button").classList.remove("active");
+	document.getElementById("show-on-route-button").classList.add("active");
+	generateCharts();
 }

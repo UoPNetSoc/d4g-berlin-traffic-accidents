@@ -1,10 +1,10 @@
 // let bikeLanesG;
 
 async function loadData() {
-	// const bikeLanes = await fetch("../data/bike_lanes_Berlin.geojson");
-	// const bikeLanesData = await bikeLanes.json();
-	// bikeLanesG = L.geoJSON(bikeLanesData, { className: "bike-lane" });
-	// bikeLanesG.addTo(map);
+	const bikeLanes = await fetch("../data/bike_lanes_Berlin.geojson");
+	const bikeLanesData = await bikeLanes.json();
+	bikeLanesG = L.geoJSON(bikeLanesData, { className: "bike-lane" });
+	bikeLanesG.addTo(map);
 
 	const data = await fetch("../data/accidents_Berlin_2021.csv");
 	const text = await data.text();
@@ -13,7 +13,7 @@ async function loadData() {
 
 	const rows = parseCSV(text);
 
-	document.getElementById("stats").innerHTML = "Generating markers...";
+	document.getElementById("status").innerHTML = "Generating markers...";
 	for (const row of rows) {
 
 		let thisRow = {};
@@ -54,7 +54,7 @@ async function loadData() {
 				<hr>
 
 				<p>
-					A <b>${numberToDetails("AccidentCategory", thisRow.AccidentCategory).toLowerCase()}</b>, 
+					<b>${numberToDetails("AccidentCategory", thisRow.AccidentCategory).toLowerCase()}</b>, 
 					<b>${numberToDetails("AccidentType", thisRow.AccidentType).toLowerCase()}</b>
 				</p>
 
@@ -68,7 +68,7 @@ async function loadData() {
 		}
 
 		
-		document.getElementById("stats").innerHTML = "Mapping data...";
+		document.getElementById("status").innerHTML = "Mapping data...";
 		for(const m of markers) {
 			try {
 				m.addTo(map);
