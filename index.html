@@ -37,8 +37,18 @@
 			top: 0;
 			left: 0;
 			width: 100vw;
-			height: 100vh;
+			height: 90vh;
 			z-index: 1;
+		}
+
+		aside#bottom-bar {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100vw;
+			background-color: #fff;
+
+			padding: 1vh 5vw;
 		}
 
 		.accident {
@@ -97,6 +107,38 @@
 		.leaflet-popup-content b {
 			display: inline-block;
 		}
+
+		.accident:not(.near-route) {
+			display: none;
+		}
+
+		.bike-lane:not(.near-route) {
+			display: none;
+		}
+
+		.leaflet-tile-pane {
+			opacity: 0.7;
+		}
+		
+		.accident {
+			border: 2px solid #000;
+		}
+
+		.accident[data-severity="1"] {
+			background-color: #f00;
+		}
+
+		.accident:has(> span[data-severity="2"]) {
+			background-color: #ff0;
+		}
+
+		.accident:has(> span[data-severity="3"]) {
+			background-color: #0f0;
+		}
+
+		.leaflet-routing-container {
+			display: none;
+		}
 	</style>
 
 	<title>Document</title>
@@ -134,308 +176,14 @@
 		</div>
 	</main>
 
-
-	<script src="parseCSV.js"></script>
-	<script src="number-to-details.js"></script>
-
-	<script> 
-
-		// centre is berlin TV tower
-		const map = L.map('map').setView([52.520834, 13.409429829], 13);
-
-		// openstreatmap is temp
-		L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 19,
-			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-		}).addTo(map);
-
-		L.Routing.control({
-			waypoints: [
-				L.latLng(57.74, 11.94),
-				L.latLng(57.6792, 11.949)
-			]
-		}).addTo(map);
-
-		function createButton(label, container) {
-		var btn = L.DomUtil.create('button', '', container);
-		btn.setAttribute('type', 'button');
-		btn.innerHTML = label;
-		return btn;
-}
-
-		map.on('click', function(e) {
-			var container = L.DomUtil.create('div'),
-				startBtn = createButton('Start from this location', container),
-				destBtn = createButton('Go to this location', container);
-
-			L.popup()
-				.setContent(container)
-				.setLatLng(e.latlng)
-				.openOn(map);
-		});
-
-		L.DomEvent.on(startBtn, 'click', function() {
-        control.spliceWaypoints(0, 1, e.latlng);
-        map1.closePopup();
-    });
-
-	 L.DomEvent.on(destBtn, 'click', function() {
-        control.spliceWaypoints(control.getWaypoints().length - 1, 1, e.latlng);
-        map1.closePopup();
-    });
-
-		async function loadData() {
-			// const bikeLanes = await fetch("bike_lanes_Berlin.geojson");
-			// const bikeLanesData = await bikeLanes.json();
-			// const geojson = L.geoJSON(bikeLanesData).addTo(map);
-
-			const data = await fetch("accidents_Berlin_2021.csv");
-			const text = await data.text();
-			
-			const header = ['ObjectID','State','District','LOR_ab_2021','AccidentYear','AccidentMonth','AccidentHour','DayOfWeek','AccidentCategory','AccidentType','AccidentTypeDetail','LightingCondition','InvolvingBike','InvolvingCar','InvolvingPedestrian','InvolvingMotorcycle','InvolvingHGV','InvolvingOther','RoadCondition','GraphicCoord1','GraphicCoord2','LongitudeWGS84','LatitudeWGS84'];
-
-			const rows = parseCSV(text);
-
-			for(const row of rows) {
-				let thisRow = {};
-				
-				for(const cell in row) {
-					thisRow[header[cell]] = row[cell];
-				}
-
-				try {
-					let involving = new Set();
-					if(thisRow.InvolvingBike == "1") involving.add("bike");
-					if(thisRow.InvolvingCar == "1") involving.add("car");
-					if(thisRow.InvolvingPedestrian == "1") involving.add("pedestrian");
-					if(thisRow.InvolvingMotorcycle == "1") involving.add("motorcycle");
-					if(thisRow.InvolvingHGV == "1") involving.add("hgv");
-					if(thisRow.InvolvingOther == "1") involving.add("other");
-
-					const emoji = {
-						"bike": "🚲",
-						"car": "🚗",
-						"pedestrian": "🚶🏻",
-						"motorcycle": "🏍️",
-						"hgv": "🚚",
-						"other": "🛸"
-					}
-
-					let involvingString = "";
-					for(const v of involving) {
-						involvingString += `${emoji[v]} + `;
-					}
-					involvingString = involvingString.slice(0, -3);
-
-					const marker = L.marker([thisRow.LatitudeWGS84, thisRow.LongitudeWGS84], {icon: getIcon(thisRow)}).addTo(map).bindPopup(`
-						<h1>${involvingString}</h1>
-
-						<p>${thisRow.AccidentHour}:00 &ndash; ${parseInt(thisRow.AccidentHour) + 1 >= 24 ? "0" : parseInt(thisRow.AccidentHour) + 1}:00, on a ${numberToDetails("DayOfWeek", thisRow.DayOfWeek)}</p>
-
-						<hr>
-
-						<p>
-							A <b>${numberToDetails("AccidentCategory", thisRow.AccidentCategory).toLowerCase()}</b>, 
-							<b>${numberToDetails("AccidentType", thisRow.AccidentType).toLowerCase()}</b>
-						</p>
-
-						<p>It was <b>${numberToDetails("AccidentTypeDetail", thisRow.AccidentTypeDetail).toLowerCase()}</b> that happened
-						<b>${numberToDetails("LightingCondition", thisRow.LightingCondition)}</b> when the road was <b>${numberToDetails("RoadCondition", thisRow.RoadCondition)}</b>.</p>
-					`);
-				} catch {
-					console.log("couldn't map");
-				}
-			}
-		}
-
-		const iconSize = 10;
-
-
-		function getIcon(row) {
-			let classList = [];
-
-			classList.push(`hr-${parseInt(row.AccidentHour)}`);
-			
-			if(row.InvolvingBike == "1") classList.push("involves-bike");
-			if(row.InvolvingCar == "1") classList.push("involves-car");
-			if(row.InvolvingPedestrian == "1") classList.push("involves-pedestrian");
-			if(row.InvolvingMotorcycle == "1") classList.push("involves-motorcycle");
-			if(row.InvolvingHGV == "1") classList.push("involves-hgv");
-			if(row.InvolvingOther == "1") classList.push("involves-other");
-
-			return L.divIcon({				
-				className: `accident ${classList.join(" ")}`,
-
-				// cursed but it works
-				html: `<span style="display: none;" data-lat="${row.LatitudeWGS84}" data-lon="${row.LongitudeWGS84}" data-severity="${row.AccidentCategory}"></span>`,
-
-				iconSize: [iconSize, iconSize],
-				iconAnchor: [iconSize / 2, iconSize / 2],
-				popupAnchor: [0, 0],
-			});
-		}
-
-
-		loadData();
-
-
-		
-		function showAllHours() {
-			document.getElementById("style-hours").innerHTML = ``;
-		}
-
-		function showOnlyAtHour(hour) {
-			const hr = parseInt(hour);
-
-			if(hr == -1) {
-				showAllHours();
-				return;
-			}
-
-			// what the fuck is this
-			document.getElementById("style-hours").innerHTML = `
-				.accident:not(.hr-${hr}) {
-					display: none;
-				}
-			`;
-		}
-
-		function showAllVehicles() {
-			document.getElementById("style-vehicles").innerHTML = ``;
-		}
-
-		const vehicles = new Set(["bike", "car", "pedestrian", "motorcycle", "hgv", "other"]);
-		function showVehicles() {
-
-			let toHide = new Set(Array.from(vehicles));
-
-			for(const v of vehicles) {
-				console.log(`checking ${v}`);
-				if(!document.getElementById(`involve-${v}`).checked) {
-					toHide.delete(v);
-					console.log(v, toHide);
-				}
-
-			}
-
-			let nots = "";
-			for(const v of toHide) {
-				nots += `:not(.involves-${v})`;
-			}
-
-			console.log(toHide);
-
-			document.getElementById("style-vehicles").innerHTML = `
-				.accident${nots} {
-					display: none;
-				}
-			`
-		}
-
-		for(const v of vehicles) {
-			try {
-				document.getElementById(`involve-${v}`).onchange = showVehicles;
-				document.getElementById(`involve-${v}`).checked = true;
-			} catch {
-				console.log(`missing checkbox to set event listener? for ${v}`);
-			}
-		}
-
-		
-
-		// test time of day animation
-		// let time = 0;
-		// function timeLoop() {
-		// 	console.log(time);
-
-		// 	if(time >= 24) time = 0;
-
-		// 	showOnlyAtHour(time);
-
-		// 	time++;
-
-		// 	window.setTimeout(timeLoop, 500);
-		// }
-
-		// timeLoop();
-
-
-		const slider = document.getElementById("time-slider");
-		slider.style.width = "100%";
-		// slider.style.height = "100px";
-
-		noUiSlider.create(slider, {
-			start: [-1],
-			step: 1,
-			connect: true,
-			range: {
-				'min': -1,
-				'max': 23
-			},
-
-			//  tooltips: true,
-			// 	format: wNumb({
-			// 		decimals: 0
-			// })
-
-			direction: 'ltr',
-
-			pips: {
-				mode: 'steps',
-				stepped: false,
-				density: 12
-			}
-
-		});
-
-		
-		slider.noUiSlider.on('update', function (values, handle) {
-			showOnlyAtHour(values[handle]);
-		});
-
-		
-		slider.noUiSlider.on('load', function (values, handle) {
-			showOnlyAtHour(values[handle]);
-		});
-
-		function toggleOptions() {
-			if(document.getElementById("options").style.display == "none") {
-				document.getElementById("options").style.display = "block";
-			} else {
-				document.getElementById("options").style.display = "none";
-			}
-		}
-
-		function getCurrentLocation() {
-			navigator.geolocation.getCurrentPosition((position) => {
-				map.setView([position.coords.latitude, position.coords.longitude], 15);
-
-				L.marker([position.coords.latitude, position.coords.longitude]).addTo(map).bindPopup("You are here").openPopup();
-
-				// find accidents within 1km
-				// this is really jank but it works
-				let counts = {"1":0, "2":0, "3":0};
-				const accidents = document.querySelectorAll(".accident");
-				for(const accident of accidents) {
-					const lat = parseFloat(accident.querySelector("span").dataset.lat);
-					const lon = parseFloat(accident.querySelector("span").dataset.lon);
-					const severity = accident.querySelector("span").dataset.severity;
-
-					const R = 6371; // Radius of the Earth in kilometers
-
-					const distance = 2 * R * Math.asin(Math.sqrt(Math.pow(Math.sin((lat - position.coords.latitude) * Math.PI / 180 / 2), 2) + Math.cos(lat * Math.PI / 180) * Math.cos(position.coords.latitude * Math.PI / 180) * Math.pow(Math.sin((lon - position.coords.longitude) * Math.PI / 180 / 2), 2)));
-
-					if (distance < 1) {
-						accident.style.backgroundColor = "blue";
-						counts[severity]++;
-					}
-				}
-
-				alert(`Within 1km of your current location, there were ${counts[1] + counts[2] + counts[3]} accidents. ${counts["3"]} had only minor injuries, ${counts["2"]} with serious injuries, and ${counts["1"]} that proved fatal.`);
-			});
-		}
-
-		window.onload = getCurrentLocation;
+	<aside id="bottom-bar"> <div id="stats"><h1>Loading...</h1></div></aside>
+
+	<script src="js/parseCSV.js"></script>
+	<script src="js/number-to-details.js"></script>
+	<script src="js/highlight-around-route.js"></script>
+	<script src="js/map.js"></script>
+	<script src="js/load-data.js"></script>
+	<script src="js/filtering.js"></script>
 </script>
 
 </body>
