@@ -52,9 +52,9 @@ async function highlightAroundRoute(e) {
 
 				// update the stats based on classes on the span
 				stats.total++;
-				if(m._icon.classList.contains("fatal")) stats.fatal++;
-				if(m._icon.classList.contains("serious")) stats.serious++;
-				if(m._icon.classList.contains("minor")) stats.minor++;
+				if(m._icon.classList.contains("severity-fatal")) stats.fatal++;
+				if(m._icon.classList.contains("severity-serious")) stats.serious++;
+				if(m._icon.classList.contains("severity-minor")) stats.minor++;
 				if(m._icon.classList.contains("involves-car")) stats.car++;
 				if(m._icon.classList.contains("involves-pedestrian")) stats.pedestrian++;
 				if(m._icon.classList.contains("involves-bike")) stats.bike++;

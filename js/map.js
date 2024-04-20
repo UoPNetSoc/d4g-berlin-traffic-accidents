@@ -84,9 +84,9 @@ function getIcon(row) {
 	// todo: these need to have prefixes
 	// we also need to include the category and type (turning, stationary, etc)
 
-	if (row.AccidentCategory == "1") classList.push("fatal");
-	if (row.AccidentCategory == "2") classList.push("serious");
-	if (row.AccidentCategory == "3") classList.push("minor");
+	if (row.AccidentCategory == "1") classList.push("severity-fatal");
+	if (row.AccidentCategory == "2") classList.push("severity-serious");
+	if (row.AccidentCategory == "3") classList.push("severity-minor");
 
 	if (row.LightingCondition == "2") classList.push("dark");
 	if (row.LightingCondition == "1") classList.push("twilight");
@@ -100,7 +100,12 @@ function getIcon(row) {
 		className: `accident ${classList.join(" ")}`,
 
 		// cursed but it works
-		html: `<span style="display: none;" data-lat="${row.LatitudeWGS84}" data-lon="${row.LongitudeWGS84}" data-severity="${row.AccidentCategory}"></span>`,
+		html: `
+		<span style="display: none;"#
+		data-lat="${row.LatitudeWGS84}"
+		data-lon="${row.LongitudeWGS84}"
+		data-severity="${row.AccidentCategory}"	
+		></span>`,
 
 		iconSize: [iconSize, iconSize],
 		iconAnchor: [iconSize / 2, iconSize / 2],

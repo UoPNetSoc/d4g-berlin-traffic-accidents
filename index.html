@@ -65,6 +65,12 @@
 			background-color: white;
 			padding: 20px;
 			z-index: 998;
+			overflow-y: scroll;
+		}
+
+		.checkbox-list {
+			display: grid;
+    		grid-template-columns: 1fr 1fr;
 		}
 
 		input[type="checkbox"] {
@@ -148,6 +154,7 @@
 
 <style id="style-hours"></style>
 <style id="style-vehicles"></style>
+<style id="style-severity"></style>
 
 
 	<div id="map"></div>
@@ -159,20 +166,30 @@
 		<p>-1 = all</p>
 		<div id="time-slider"></div>
 
-		<h2 style="margin-top: 2em;">involving what?</h2>
-		<div id="inputs-list">
-		<input type="checkbox" id="involve-bike" name="involve-bike">
-		<label for="involve-bike"><span>🚲</span> Bike</label>
-		<input type="checkbox" id="involve-car" name="involve-car">
-		<label for="involve-car"><span>🚗</span> Car</label>
-		<input type="checkbox" id="involve-pedestrian" name="involve-pedestrian">
-		<label for="involve-pedestrian"><span>🚶🏻</span> Pedestrian</label>
-		<input type="checkbox" id="involve-motorcycle" name="involve-motorcycle">
-		<label for="involve-motorcycle"><span>🏍️</span> Motorcycle</label>
-		<input type="checkbox" id="involve-hgv" name="involve-hgv">
-		<label for="involve-hgv"><span>🚚</span> HGV</label>
-		<input type="checkbox" id="involve-other" name="involve-other">
-		<label for="involve-other"><span>🛸</span> Other</label>
+		<h2 style="margin-top: 2em;">vehicles</h2>
+		<div class="checkbox-list">
+			<input type="checkbox" id="involve-bike" name="involve-bike">
+			<label for="involve-bike"><span>🚲</span> Bike</label>
+			<input type="checkbox" id="involve-car" name="involve-car">
+			<label for="involve-car"><span>🚗</span> Car</label>
+			<input type="checkbox" id="involve-pedestrian" name="involve-pedestrian">
+			<label for="involve-pedestrian"><span>🚶🏻</span> Pedestrian</label>
+			<input type="checkbox" id="involve-motorcycle" name="involve-motorcycle">
+			<label for="involve-motorcycle"><span>🏍️</span> Motorcycle</label>
+			<input type="checkbox" id="involve-hgv" name="involve-hgv">
+			<label for="involve-hgv"><span>🚚</span> HGV</label>
+			<input type="checkbox" id="involve-other" name="involve-other">
+			<label for="involve-other"><span>🛸</span> Other</label>
+		</div>
+
+		<h2>severity</h2>
+		<div class="checkbox-list">
+			<input type="checkbox" id="severity-fatal" name="severity-fatal">
+			<label for="severity-fatal"><span>🟥</span> Fatal</label>
+			<input type="checkbox" id="severity-serious" name="severity-serious">
+			<label for="severity-serious"><span>🟨</span> Serious</label>
+			<input type="checkbox" id="severity-minor" name="severity-minor">
+			<label for="severity-minor"><span>🟩</span> Minor</label>
 		</div>
 	</main>
 

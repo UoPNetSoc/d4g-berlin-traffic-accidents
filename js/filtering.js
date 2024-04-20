@@ -66,6 +66,44 @@ for (const v of vehicles) {
 }
 
 
+const severities = new Set(["fatal", "serious", "minor"]);
+function showSeverities() {
+
+	let toHide = new Set(Array.from(severities));
+
+	for (const s of severities) {
+		console.log(`checking ${s}`);
+		if (!document.getElementById(`severity-${s}`).checked) {
+			toHide.delete(s);
+			console.log(s, toHide);
+		}
+
+	}
+
+	let nots = "";
+	for (const s of toHide) {
+		nots += `:not(.severity-${s})`;
+	}
+
+	console.log(toHide);
+
+	document.getElementById("style-severity").innerHTML = `
+				.accident${nots} {
+					display: none;
+				}
+			`
+
+	updateFilterStats();
+}
+
+for (const s of severities) {
+	try {
+		document.getElementById(`severity-${s}`).onchange = showSeverities;
+		document.getElementById(`severity-${s}`).checked = true;
+	} catch {
+		console.log(`missing checkbox to set event listener? for ${s}`);
+	}
+}
 
 // test time of day animation
 // let time = 0;
