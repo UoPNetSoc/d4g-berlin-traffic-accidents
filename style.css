@@ -71,7 +71,7 @@ main#options {
   top: 1vh;
   right: 1vw;
   width: 300px;
-  height: 80vh;
+  height: 75vh;
   background-color: #fffa;
   padding: 20px;
   z-index: 9999;
@@ -173,4 +173,22 @@ p#status {
   z-index: 9998;
   text-transform: lowercase;
   font-style: italic;
+}
+
+
+/* temp for screenshots */
+#status {
+  opacity: 0;
+}
+
+#graphs {
+  opacity: 0.8 !important;
+}
+
+#options {
+  opacity: 0.8 !important;
+}
+
+#mobile-toggle {
+  opacity: 0 !important;
 }

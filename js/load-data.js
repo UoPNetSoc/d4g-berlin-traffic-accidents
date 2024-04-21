@@ -27,7 +27,7 @@ async function loadData() {
 			thisRow[header[cell]] = row[cell];
 		}
 
-		console.log(row, thisRow);
+		// console.log(row, thisRow);
 
 		let involving = new Set();
 		if (thisRow.InvolvingBike == "1") involving.add("bike");
