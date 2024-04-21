@@ -11,7 +11,12 @@ async function loadData() {
 	// bikeLanesG = L.geoJSON(bikeLanesData, { className: "bike-lane" });
 	// bikeLanesG.addTo(map);
 
-	const data = await fetch(`../data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`);
+	let dataURL = `../data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`;
+	if(location.host == "netsoc.group") {
+		dataURL = `/d4g-berlin-traffic-accidents/data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`;
+	}
+
+	const data = await fetch(dataURL);
 	const text = await data.text();
 
 	const header = ['ObjectID', 'State', 'District', 'LOR_ab_2021', 'AccidentYear', 'AccidentMonth', 'AccidentHour', 'DayOfWeek', 'AccidentCategory', 'AccidentType', 'AccidentTypeDetail', 'LightingCondition', 'InvolvingBike', 'InvolvingCar', 'InvolvingPedestrian', 'InvolvingMotorcycle', 'InvolvingHGV', 'InvolvingOther', 'RoadCondition', 'GraphicCoord1', 'GraphicCoord2', 'LongitudeWGS84', 'LatitudeWGS84'];
