@@ -12,9 +12,11 @@ async function loadData() {
 	// bikeLanesG.addTo(map);
 
 	let dataURL = `../data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`;
-	if(location.host == "netsoc.group") {
+	if (location.host == "netsoc.group") {
 		dataURL = `/d4g-berlin-traffic-accidents/data/accidents_Berlin_${window.location.hash.replace("#","")}.csv`;
 	}
+
+	console.log(location.host, location.host == "netsoc.group", dataURL);
 
 	const data = await fetch(dataURL);
 	const text = await data.text();
